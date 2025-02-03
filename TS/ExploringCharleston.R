@@ -138,10 +138,16 @@ head(full_data$STUDYNO, 50)
 
 
 #-----------first i want to create a new dataframe for testing purposes
-selected_data_chol <- full_data %>% select(STUDYNO, Date, CHOL, SERCHOL3, CHOL11, CHOL12,  Phase)
-head(selected_data, 20)
 
+# Combine cholesterol values from different phases into one column
+full_data_cholestrol <- full_data %>%
+  mutate(
+    Cholestrol = coalesce(CHOL, SERCHOL3, CHOL11, CHOL12)
+  )
+#select the required columns for time series analysis
+selected_data <- full_data_cholestrol %>% 
+  select(STUDYNO, Date, Phase, Cholestrol )
+head(selected_data, 100)
 
-selected_data_age <- full_data %>% select(STUDYNO, Date, AGE2)
 
 
