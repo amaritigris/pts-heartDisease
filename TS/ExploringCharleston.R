@@ -59,7 +59,7 @@ full_data <- full_data %>%
     YEAR11 = as.numeric(YEAR11),
     MONTH11 = as.numeric(MONTH11),
     YEAR12 = as.numeric(YEAR12),
-    DEATHYR = as.numeric(DEATHYR),
+    CENS_YR = as.numeric(CENS_YR),
     DEATHMO = as.numeric(DEATHMO),
     
     # Ensure valid values (months should be 1-12, years >1900)
@@ -74,7 +74,7 @@ full_data <- full_data %>%
     YEAR10 = ifelse(YEAR10 >= 1900 & YEAR10 <= 2100, YEAR10, NA),
     YEAR11 = ifelse(YEAR11 >= 1900 & YEAR11 <= 2100, YEAR11, NA),
     YEAR12 = ifelse(YEAR12 >= 1900 & YEAR12 <= 2100, YEAR12, NA),
-    DEATHYR = ifelse(DEATHYR >= 1900 & DEATHYR <= 2100, DEATHYR, NA),
+    CENS_YR = ifelse(CENS_YR >= 1900 & CENS_YR <= 2100, CENS_YR, NA),
     
     # Construct the date string BEFORE applying as.Date()
     DateString = case_when(
@@ -83,7 +83,7 @@ full_data <- full_data %>%
       Phase == "Phase10" & !is.na(YEAR10) ~ sprintf("%d-%02d-01", YEAR10, ifelse(is.na(MONTH10), 6, MONTH10)),
       Phase == "Phase11" & !is.na(YEAR11) ~ sprintf("%d-%02d-01", YEAR11, ifelse(is.na(MONTH11), 6, MONTH11)),
       Phase == "Phase12" & !is.na(YEAR12) ~ sprintf("%d-06-01", YEAR12),  # Default to June
-      Phase == "Deaths" & !is.na(DEATHYR) ~ sprintf("%d-%02d-01", DEATHYR, ifelse(is.na(DEATHMO), 6, DEATHMO)),
+      Phase == "Deaths" & !is.na(CENS_YR) ~ sprintf("%d-%02d-01", CENS_YR, ifelse(is.na(DEATHMO), 6, DEATHMO)),
       TRUE ~ NA_character_  # Ensure it's character, not factor
     )
   )
@@ -140,14 +140,76 @@ head(full_data$STUDYNO, 50)
 #-----------first i want to create a new dataframe for testing purposes
 
 # Combine cholesterol values from different phases into one column
-full_data_cholestrol <- full_data %>%
+
+selected_data <- full_data %>%
   mutate(
-    Cholestrol = coalesce(CHOL, SERCHOL3, CHOL11, CHOL12)
-  )
-#select the required columns for time series analysis
-selected_data <- full_data_cholestrol %>% 
-  select(STUDYNO, Date, Phase, Cholestrol )
-head(selected_data, 100)
+    Cholesterol = case_when(
+      Phase == "Baseline" ~ CHOL,
+      Phase == "Phase11"  ~ CHOL11,
+      Phase == "Phase12"  ~ CHOL12,
+      Phase == "Additional" ~ SERCHOL3,
+      TRUE ~ NA_real_
+    ),
+    Age = case_when(
+      Phase == "Baseline" ~ AGE2,
+      Phase == "Phase10"  ~ AGE10,
+      Phase == "Phase11"  ~ AGE11,
+      Phase == "Phase12"  ~ AGE12,
+      Phase == "Additional" ~ AGE3,
+      Phase == "Deaths" ~ CENS_YR - BIRTHYR,
+      TRUE ~ NA_real_
+    ),
+    Pressure = case_when(
+      Phase == "Baseline" ~ SBPPOST,
+      Phase == "Phase10"  ~ SBP110,
+      Phase == "Phase11"  ~ SBP111,
+      Phase == "Phase12"  ~ SBP112,
+      Phase == "Additional" ~ SYSSEAT3,
+      TRUE ~ NA_real_
+    ), 
+    Gender = case_when(
+      Phase == "Baseline" ~ RSEX,
+      Phase == "Phase10"  ~ RSEX10,
+      Phase == "Phase11"  ~ RSEX11,
+      Phase == "Phase12"  ~ RSEX12,
+      Phase == "Additional" ~ RSEX3,
+      TRUE ~ NA_real_
+    )
+  ) %>%
+  group_by(STUDYNO) %>%
+  arrange(Date) %>%   # <-- This ensures sorting by date within each patient
+  fill(Cholesterol, Age, Pressure, Gender, .direction = "down")
+
+time_series <- selected_data %>% 
+  select(STUDYNO, Date, Phase, Age, Gender, Cholesterol, Pressure)
+
+print(time_series, 100)  # Check the first 10 rows
+summary(time_series)   # Get an overview
+
+
+#now we want to split each patient into different dataframes
+patient_list <- split(time_series, time_series$STUDYNO)
+
+#plot cholstrol over time for patient 2
+ggplot(patient_list[[2]], aes(x = Age, y = Cholesterol)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Cholesterol Levels Over Time - Patient 2", x = "Age", y = "Cholesterol") +
+  theme_minimal()
+
+#now we want to check the correlation 
+clean_data <- time_series[!is.na(time_series$Age) & !is.na(time_series$Cholesterol), ]
+# Scatter plot with regression line
+ggplot(clean_data, aes(x = Age, y = Cholesterol)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Regression line
+  labs(title = "Correlation Between Age and Cholesterol",
+       x = "Age (years)", 
+       y = "Cholesterol Levels") +
+  theme_minimal()
+cor(clean_data$Age, clean_data$Cholesterol, use = "complete.obs")
+
+
 
 
 
