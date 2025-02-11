@@ -174,30 +174,94 @@ selected_data <- full_data %>%
       Phase == "Phase12"  ~ RSEX12,
       Phase == "Additional" ~ RSEX3,
       TRUE ~ NA_real_
+    ),
+    Stage = case_when(
+      Phase == "Baseline" ~ 0, 
+      Phase == "Phase10"  ~ 1 ,
+      Phase == "Phase11"  ~ 2,
+      Phase == "Phase12" ~ 3,
+      Phase == "Deaths" ~ 4, 
+      Phase == "Additional" ~ 0
     )
   ) %>%
   group_by(STUDYNO) %>%
   arrange(Date) %>%   # <-- This ensures sorting by date within each patient
-  fill(Cholesterol, Age, Pressure, Gender, .direction = "down")
+  fill(Cholesterol, Age, Pressure, Gender, Stage, .direction = "down")
 
 time_series <- selected_data %>% 
-  select(STUDYNO, Date, Phase, Age, Gender, Cholesterol, Pressure)
+  select(STUDYNO, Date, Phase, Age, Gender, Stage, Cholesterol, Pressure)
 
 print(time_series, 100)  # Check the first 10 rows
 summary(time_series)   # Get an overview
 
-
 #now we want to split each patient into different dataframes
 patient_list <- split(time_series, time_series$STUDYNO)
+patient_list[[1]]
 
-#plot cholstrol over time for patient 2
-ggplot(patient_list[[2]], aes(x = Age, y = Cholesterol)) +
-  geom_line() +
-  geom_point() +
-  labs(title = "Cholesterol Levels Over Time - Patient 2", x = "Age", y = "Cholesterol") +
+#calculate average age by stage
+avg_age_stage <- selected_data %>%
+  group_by(Stage) %>%  # Group by Stage
+  summarise(Avg_Age = mean(Age, na.rm = TRUE)) %>%
+  arrange(Stage)  # Ensure chronological order
+
+ggplot(avg_age_stage, aes(x = Stage, y = Avg_Age)) +
+  geom_line(color = "green", size = 1) +  # Line plot for trend
+  geom_point(color = "darkred", size = 2) +  # Points for individual averages
+  scale_x_continuous(breaks = 0:4, labels = c("0", "1", "2", "3", "4")) +  
+  labs(title = "Average Age by Disease Stage",
+       x = "Stage",
+       y = "Average Age") +
   theme_minimal()
 
-#now we want to check the correlation 
+#finding the correlation between age and disease stage
+# Compute Spearman correlation between Age and Stage
+cor_age_stage <- cor(selected_data$Age, selected_data$Stage, method = "spearman", use = "complete.obs")
+
+# Print the correlation result
+print(paste("Spearman Correlation between Age and Stage: ", cor_age_stage))
+
+# Scatter plot for Age vs Stage
+ggplot(selected_data, aes(x = Age, y = Stage)) +
+  geom_point(color = "blue", alpha = 0.6) +  # Points showing the relationship
+  geom_smooth(method = "lm", color = "red", se = FALSE) +  # Add trend line
+  labs(title = "Correlation Between Age and Disease Stage",
+       x = "Age",
+       y = "Disease Stage (0=Baseline, 1=Phase10, 2=Phase11, 3=Phase12, 4=Deaths)") +
+  theme_minimal() +
+  theme(legend.position = "none")
+
+
+#calculate average cholestrol by age 
+avg_cholesterol <- selected_data %>%
+  group_by(Age) %>%  # Group by Age
+  summarise(Avg_Cholesterol = mean(Cholesterol, na.rm = TRUE)) %>%  # Compute mean cholesterol
+  arrange(Age)  # Ensure chronological order
+
+# Plot the time series for average cholesterol
+ggplot(avg_cholesterol, aes(x = Age, y = Avg_Cholesterol)) +
+  geom_line(color = "blue", size = 1) +  # Line plot for trend
+  geom_point(color = "red", size = 2) +  # Points for individual averages
+  labs(title = "Average Cholesterol Levels Over Time",
+       x = "Age",
+       y = "Average Cholesterol") +
+  theme_minimal()
+
+#calculate average cholestrol by stage
+avg_cholesterol_stage <- selected_data %>%
+  group_by(Stage) %>%  # Group by Stage
+  summarise(Avg_Cholesterol = mean(Cholesterol, na.rm = TRUE)) %>%
+  arrange(Stage)  # Ensure chronological order
+
+ggplot(avg_cholesterol_stage, aes(x = Stage, y = Avg_Cholesterol)) +
+  geom_line(color = "blue", size = 1) +  # Line plot for trend
+  geom_point(color = "red", size = 2) +  # Points for individual averages
+  scale_x_continuous(breaks = 0:4, labels = c("0", "1", "2", "3", "4")) +  
+  labs(title = "Average Cholesterol Levels by Disease Stage",
+       x = "Stage",
+       y = "Average Cholesterol") +
+  theme_minimal()
+
+#now we want to check the correlation between cholesterol and age 
 clean_data <- time_series[!is.na(time_series$Age) & !is.na(time_series$Cholesterol), ]
 # Scatter plot with regression line
 ggplot(clean_data, aes(x = Age, y = Cholesterol)) +
@@ -208,6 +272,86 @@ ggplot(clean_data, aes(x = Age, y = Cholesterol)) +
        y = "Cholesterol Levels") +
   theme_minimal()
 cor(clean_data$Age, clean_data$Cholesterol, use = "complete.obs")
+
+
+#check correlation between cholestrol and stage
+clean_data <- time_series[!is.na(time_series$Stage) & !is.na(time_series$Cholesterol), ]
+# Scatter plot with regression line
+ggplot(clean_data, aes(x = Stage, y = Cholesterol)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Regression line
+  labs(title = "Correlation Between Stage and Cholesterol",
+       x = "Age (years)", 
+       y = "Cholesterol Levels") +
+  theme_minimal()
+cor(clean_data$Stage, clean_data$Cholesterol, use = "complete.obs")
+
+#calculate average pressure by age
+avg_pressure <- selected_data %>%
+  group_by(Age) %>%  # Group by Age
+  summarise(Avg_Pressure = mean(Pressure, na.rm = TRUE)) %>%  # Compute mean pressure
+  arrange(Age)  # Ensure chronological order
+
+# Plot the time series for average pressure
+ggplot(avg_pressure, aes(x = Age, y = Avg_Pressure)) +
+  geom_line(color = "blue", size = 1) +  # Line plot for trend
+  geom_point(color = "red", size = 2) +  # Points for individual averages
+  labs(title = "Average Pressure Levels Over Time",
+       x = "Age",
+       y = "Average Pressure") +
+  theme_minimal()
+
+#calculate average pressure by stage
+avg_pressure <- selected_data %>%
+  group_by(Stage) %>%  # Group by Stage
+  summarise(Avg_Pressure = mean(Pressure, na.rm = TRUE)) %>%  # Compute mean pressure
+  arrange(Stage)  # Ensure chronological order
+
+# Plot the time series for average pressure
+ggplot(avg_pressure, aes(x = Stage, y = Avg_Pressure)) +
+  geom_line(color = "blue", size = 1) +  # Line plot for trend
+  geom_point(color = "red", size = 2) +  # Points for individual averages
+  labs(title = "Average Pressure Levels Over Disease Stages",
+       x = "Stage",
+       y = "Average Pressure") +
+  theme_minimal()
+
+
+#now we want to check the correlation between pressure and age 
+clean_data <- time_series[!is.na(time_series$Age) & !is.na(time_series$Pressure), ]
+# Scatter plot with regression line
+ggplot(clean_data, aes(x = Age, y = Pressure)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Regression line
+  labs(title = "Correlation Between Age and Pressure",
+       x = "Age (years)", 
+       y = "Pressure Levels") +
+  theme_minimal()
+cor(clean_data$Age, clean_data$Pressure, use = "complete.obs")
+
+#now we want to check the correlation between pressure and stage
+clean_data <- time_series[!is.na(time_series$Stage) & !is.na(time_series$Pressure), ]
+# Scatter plot with regression line
+ggplot(clean_data, aes(x = Stage, y = Pressure)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Regression line
+  labs(title = "Correlation Between Stage and Pressure",
+       x = "Disease Stage", 
+       y = "Pressure Levels") +
+  theme_minimal()
+cor(clean_data$Stage, clean_data$Pressure, use = "complete.obs")
+
+
+#creating a density plot to see how different age groups are distributed within different disease stages
+# Density plot of Age across Disease Stages
+ggplot(selected_data, aes(x = Age, fill = factor(Stage))) +
+  geom_density(alpha = 0.6) +  # Fill the area under the curve for better visualization
+  scale_fill_brewer(palette = "Set1", name = "Disease Stage") +  # Color the stages differently
+  labs(title = "Density Plot of Age Across Disease Stages",
+       x = "Age",
+       y = "Density") +
+  theme_minimal() +
+  theme(legend.position = "top")  # Position legend at the top
 
 
 
