@@ -1,5 +1,5 @@
 # Install the dplyr package (if not already installed)
-if (!require("dplyr")) install.packages("dplyr")
+if (!require("dplyr")) install.packagesackages("dplyr")
 if (!require("ggplot2")) install.packages("ggplot2")
 
 
@@ -45,6 +45,7 @@ colnames(pca_data) <- c("PC1", "PC2")
 pca_data$Stage <- data_clean$Stage
 pca_data$Age <- data_clean$Age  # Add Age for reference
 pca_data$Sex <- data_clean$Gender
+pca_data$STUDYNO <- data_clean$STUDYNO  
 
 # Convert Gender: 1 & 3 → Male (1), 2 & 4 → Female (2)
 pca_data$Sex <- ifelse(data_clean$Gender %in% c(1, 3), 1, 2)  
