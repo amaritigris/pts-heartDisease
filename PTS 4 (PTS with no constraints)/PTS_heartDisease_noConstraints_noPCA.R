@@ -141,6 +141,66 @@ ggplot(FULLPTS, aes(x = PseudoTime, y = OldPeak, color = PTS, group = PTS)) +
   facet_wrap(~ PTS, ncol = 1)  # Create separate plots for each PTS
 
 
+#correlation graph between age and disease stage
+# Scatterplot of Age vs. Disease Stage (num) with correlation trend line
+ggplot(dat, aes(x = age, y = num)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Linear regression line with confidence interval
+  labs(title = "Correlation Between Age and Heart Disease Stage",
+       x = "Age", y = "Heart Disease Severity (num)") +
+  theme_minimal()
+
+# Calculate correlation between Age and Disease Stage (num)
+correlation_value <- cor(dat$age, dat$num, use = "complete.obs")  # Handle missing values if any
+print(paste("Correlation between Age and Disease Stage:", round(correlation_value, 3)))
+
+#correlation graph between age and cholesterol
+ggplot(dat, aes(x = age, y = chol)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Linear regression line with confidence interval
+  labs(title = "Correlation Between Age and Cholesterol",
+       x = "Age", y = "Cholesterol") +
+  theme_minimal()
+correlation_value <- cor(dat$age, dat$chol, use = "complete.obs")  # Handle missing values if any
+print(paste("Correlation between Age and cholesterol:", round(correlation_value, 3)))
+
+#correlation graph between disease stage and cholesterol
+ggplot(dat, aes(x = num, y = chol)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Linear regression line with confidence interval
+  labs(title = "Correlation Between Disease Stage and Cholesterol",
+       x = "Disease Stage", y = "Cholesterol") +
+  theme_minimal()
+correlation_value <- cor(dat$age, dat$chol, use = "complete.obs")  # Handle missing values if any
+print(paste("Correlation between Disease Stage and cholesterol:", round(correlation_value, 3)))
+
+
+#correlation graph between age and pressure
+ggplot(dat, aes(x = age, y = trestbps)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Linear regression line with confidence interval
+  labs(title = "Correlation Between Age and Resting blood pressure",
+       x = "Age", y = "Cholesterol") +
+  theme_minimal()
+correlation_value <- cor(dat$age, dat$chol, use = "complete.obs")  # Handle missing values if any
+print(paste("Correlation between Age and Blood Pressure:", round(correlation_value, 3)))
+
+#correlation graph between disease stage and pressure
+ggplot(dat, aes(x = num, y = trestbps)) +
+  geom_point(alpha = 0.5, color = "blue") +  # Scatter plot points
+  geom_smooth(method = "lm", color = "red", se = TRUE) +  # Linear regression line with confidence interval
+  labs(title = "Correlation Between Disease Stage and Resting Blood Pressure",
+       x = "Disease Stage", y = "Pressure") +
+  theme_minimal()
+correlation_value <- cor(dat$num, dat$trestbps, use = "complete.obs")  # Handle missing values if any
+print(paste("Correlation between Disease Stage and pressure:", round(correlation_value, 3)))
+
+
+
+
+
+
+
 
 
 
