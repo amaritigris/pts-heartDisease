@@ -171,7 +171,7 @@ ggplot(dat, aes(x = num, y = chol)) +
   labs(title = "Correlation Between Disease Stage and Cholesterol",
        x = "Disease Stage", y = "Cholesterol") +
   theme_minimal()
-correlation_value <- cor(dat$age, dat$chol, use = "complete.obs")  # Handle missing values if any
+correlation_value <- cor(dat$num, dat$chol, use = "complete.obs")  # Handle missing values if any
 print(paste("Correlation between Disease Stage and cholesterol:", round(correlation_value, 3)))
 
 
@@ -182,7 +182,7 @@ ggplot(dat, aes(x = age, y = trestbps)) +
   labs(title = "Correlation Between Age and Resting blood pressure",
        x = "Age", y = "Cholesterol") +
   theme_minimal()
-correlation_value <- cor(dat$age, dat$chol, use = "complete.obs")  # Handle missing values if any
+correlation_value <- cor(dat$age, dat$trestbps, use = "complete.obs")  # Handle missing values if any
 print(paste("Correlation between Age and Blood Pressure:", round(correlation_value, 3)))
 
 #correlation graph between disease stage and pressure
