@@ -94,5 +94,6 @@ legend("topright", legend = unique(fullclass), col = unique(as.numeric(as.factor
 
 # Overlay PTS trajectories
 for (i in 1:nreps) {
-  points(pcadat$x[pts[[i]], 1], pcadat$x[pts[[i]], 2], type = "l", col = "blue", lwd = 1)
+  points(pcadat$x[pts[[i]], 1], pcadat$x[pts[[i]], 2], type = "l", col = "black", lwd = 1)
 }
+
