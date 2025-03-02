@@ -142,3 +142,20 @@ ggplot(FULLPTS, aes(x = PseudoTime, y = PC1, color = factor(Class))) +
   ) +
   theme_minimal()
 
+
+#saving pts as csv for evaluation purposes
+# Convert PTS list to a data frame for saving
+pts_df <- do.call(rbind, lapply(1:length(pts), function(i) {
+  data.frame(
+    Rep = i,  # Identifier for the repetition
+    PseudoTime = 1:length(pts[[i]]),  # Time point in the trajectory
+    Index = pts[[i]],  # Indices from sampled data
+    PC1 = pcadat$scores[pts[[i]], 1],  # PCA Component 1
+    PC2 = pcadat$scores[pts[[i]], 2],  # PCA Component 2
+    Age = age[pts[[i]]],  # Age of patients
+    Class = class[pts[[i]]]  # Disease stage
+  )
+}))
+
+write.csv(pts_df, "D:\\CS Year 3\\FYP\\PTS code\\pca_generated_pts_ageConstraints.csv", row.names = FALSE)
+

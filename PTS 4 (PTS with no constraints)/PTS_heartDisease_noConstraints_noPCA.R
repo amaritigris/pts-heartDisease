@@ -43,7 +43,6 @@ banto <- NULL
 dis <- dist(mydata, method = "euclidean")
 dis = as.matrix(dis)
 print(dis)
-
 sampsize = nrow(mydata)
 print(sampsize)
 
@@ -107,6 +106,26 @@ pts_combined <- do.call(rbind, lapply(1:5, function(i) {
   pts_df$pts <- paste0("PTS ", i)  # Label the PTS
   return(pts_df)
 }))
+
+
+# Plot trend line for average age over pseudo-time
+ggplot(avg_age_pts, aes(x = t, y = Average_Age)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Age Progression Over Pseudo-Time (No constraints)",
+       x = "Pseudo-Time",
+       y = "Average Age") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Age ~ t, data = avg_age_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Age per Pseudo-Time Unit:", rate_of_increase, "\n")
+
+
+
 
 # Bar plot for 'num'
 ggplot(pts_combined, aes(x = as.factor(num), fill = pts)) +
@@ -194,6 +213,12 @@ ggplot(dat, aes(x = num, y = trestbps)) +
   theme_minimal()
 correlation_value <- cor(dat$num, dat$trestbps, use = "complete.obs")  # Handle missing values if any
 print(paste("Correlation between Disease Stage and pressure:", round(correlation_value, 3)))
+
+#trend line for average age progression 
+# Compute the average age at each pseudo-time point
+avg_age_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Age = mean(a, na.rm = TRUE))  
 
 
 

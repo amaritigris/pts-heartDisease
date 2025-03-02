@@ -65,3 +65,16 @@ ggplot(pca_sampled, aes(x = Age, y = Stage, color = Age_Group)) +
   theme_minimal() +
   theme(legend.position = "right")
 
+#saving time series for comparison purposes
+# Select relevant columns and order by STUDYNO and time (if a time column exists)
+ts_data <- pca_sampled %>% 
+  select(STUDYNO, Age, Stage, PC1, PC2) %>%
+  arrange(STUDYNO, Age)  # Ensuring proper ordering of time series
+
+# Print first few rows to verify structure
+head(ts_data)
+
+write.csv(ts_data, "D:\\CS Year 3\\FYP\\PTS code\\TS\\extracted_time_series.csv", row.names = FALSE)
+
+
+

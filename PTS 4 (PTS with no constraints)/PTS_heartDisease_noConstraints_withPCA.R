@@ -97,3 +97,19 @@ for (i in 1:nreps) {
   points(pcadat$x[pts[[i]], 1], pcadat$x[pts[[i]], 2], type = "l", col = "black", lwd = 1)
 }
 
+#saving the created PTS for later evaluation purposes
+# Convert PTS list to a data frame for saving
+pts_df <- do.call(rbind, lapply(1:length(pts), function(i) {
+  data.frame(
+    Rep = i,  # Identifier for the repetition
+    Index = pts[[i]],  # Indices from sampled data
+    PC1 = pcadat$x[pts[[i]], 1],  # PCA Component 1
+    PC2 = pcadat$x[pts[[i]], 2],  # PCA Component 2
+    Stage = fullclass[pts[[i]]]  # Disease stage
+  )
+}))
+head(pts_df)
+write.csv(pts_df, "D:\\CS Year 3\\FYP\\PTS code\\pca_generated_pts_noConstraints.csv", row.names = FALSE)
+
+
+

@@ -98,6 +98,28 @@ for (i in 1:nreps) {
 # Ensure FULLPTS has appropriate column names for consistency
 colnames(FULLPTS)[1:3] <- c("t", "c", "a")
 
+# Compute the average age at each pseudo-time point
+head(FULLPTS)
+avg_age_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Age = mean(a, na.rm = TRUE))  
+
+# Plot trend line for average age over pseudo-time
+ggplot(avg_age_pts, aes(x = t, y = Average_Age)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Age Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Age") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Age ~ t, data = avg_age_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Age per Pseudo-Time Unit:", rate_of_increase, "\n")
+
 ############ A: Visualization: Density Plot for Age Distribution by Disease Stage
 ggplot(FULLPTS, aes(x = a, fill = factor(c))) +
   geom_density(alpha = 0.5) +  # Adjust alpha for transparency
