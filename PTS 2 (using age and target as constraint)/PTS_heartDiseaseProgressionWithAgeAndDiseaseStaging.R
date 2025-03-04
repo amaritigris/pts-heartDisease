@@ -143,6 +143,8 @@ pts_df <- do.call(rbind, lapply(1:length(pts), function(i) {
   )
 }))
 
+head(pts_df)
+
 write.csv(pts_df, "D:\\CS Year 3\\FYP\\PTS code\\pca_generated_pts_ageANDstageConstraints.csv", row.names = FALSE)
 
 

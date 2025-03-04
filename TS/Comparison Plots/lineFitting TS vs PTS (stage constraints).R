@@ -5,7 +5,7 @@ library(dplyr)
 library(gridExtra)
 
 # Read CSV files
-pseudo_time_series <- read.csv("D:/CS Year 3/FYP/PTS code/TS/evaluation_pca/pca_generated_pts_noConstraints.csv")
+pseudo_time_series <- read.csv("D:/CS Year 3/FYP/PTS code/TS/evaluation_pca/pca_generated_pts_stageConstraints.csv")
 real_time_series <- read.csv("D:/CS Year 3/FYP/PTS code/TS/evaluation_pca/extracted_time_series.csv")
 head(real_time_series)
 head(pseudo_time_series)
