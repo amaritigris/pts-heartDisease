@@ -21,6 +21,7 @@ fullclass = dat[,3]#vector of classes where 0 is control (selects third column w
 print(fullclass)
 class=1+(fullclass>0)#converts multiclasses into 2: 1 = control, 2 = others
 print(class)
+
 #constraints for Simulated Data
 #constrain banfrom[k] -> banto[k] moves
 banfrom = c(3,4);#NULL;#

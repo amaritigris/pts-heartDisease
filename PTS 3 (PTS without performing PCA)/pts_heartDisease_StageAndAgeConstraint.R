@@ -121,6 +121,53 @@ rate_model <- lm(Average_Age ~ t, data = avg_age_pts)
 rate_of_increase <- coef(rate_model)[2]
 cat("Rate of Increase in Age per Pseudo-Time Unit:", rate_of_increase, "\n")
 
+# Compute the average STAGE at each pseudo-time point
+head(FULLPTS)
+avg_stage_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Stage = mean(c, na.rm = TRUE))  
+
+# Plot trend line for average STAGE over pseudo-time
+ggplot(avg_stage_pts, aes(x = t, y = Average_Stage)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Stage Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Stage") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Stage ~ t, data = avg_stage_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Stage per Pseudo-Time Unit:", rate_of_increase, "\n")
+
+# Compute the average CHOLESTEROL at each pseudo-time point
+head(FULLPTS)
+avg_chol_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Chol = mean(chol, na.rm = TRUE))  
+
+# Plot trend line for average cholesterol over pseudo-time
+ggplot(avg_chol_pts, aes(x = t, y = Average_Chol)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Cholesterol Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Cholesterol") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Chol ~ t, data = avg_chol_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Cholesterol per Pseudo-Time Unit:", rate_of_increase, "\n")
+
+
+
+
 
 
 
@@ -180,6 +227,49 @@ ggplot(pts_data, aes(x = PseudoTime, y = Age)) +
        x = "Pseudo-Time", y = "Age") +
   theme_minimal()
 
+#A - Stage
+# Initialize an empty data frame to store the extracted data for all 5 paths
+pts_data <- data.frame()
+
+# Loop through the first 5 paths (pts[[1]] to pts[[5]]) to extract age and pseudo-time
+for (i in 1:5) {
+  # Get the indices of samples for the i-th path
+  path_indices <- pts[[i]]
+  
+  # Extract the age values for this path
+  stage_values <- data$num[path_indices]
+  
+  # Create a temporary data frame for this path
+  temp_df <- data.frame(
+    PseudoTime = 1:length(stage_values),  # Pseudo-time (time step)
+    Stage = stage_values,  # Age values along the path
+    Path = factor(rep(i, length(stage_values)))  # Path index for faceting
+  )
+  
+  # Append the data to pts_data
+  pts_data <- rbind(pts_data, temp_df)
+}
+
+# Plot using ggplot2 with facets
+ggplot(pts_data, aes(x = PseudoTime, y = Stage)) +
+  geom_line(color = "blue") +  # Raw line plot for age progression
+  facet_wrap(~Path, scales = "free_y", ncol = 1) +  # Faceting by Path
+  labs(title = "Raw Stage Progression for First 5 Pseudo-Time Paths",
+       x = "Pseudo-Time", y = "Stage") +
+  theme_minimal()
+
+# Explore correlations and visualize relationships between age and disease stage
+correlation <- cor(FULLPTS$a, FULLPTS$c, method = "pearson")
+print(paste("Pearson correlation between Age and Disease Stage:", correlation))
+
+ggplot(FULLPTS, aes(x = c, y = a)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Relationship Between Age and Disease Stage",
+       x = "Disease Stage", y = "Age") +
+  theme_minimal()
+
+
 
 
 #B - trestbps
@@ -213,6 +303,27 @@ ggplot(pts_data, aes(x = PseudoTime, y = TrestBP)) +
        x = "Pseudo-Time", y = "Resting Blood Pressure") +
   theme_minimal()
 
+# Explore correlations and visualize relationships between age and Pressure
+correlation <- cor(FULLPTS$a, FULLPTS$trestbps, method = "pearson")
+print(paste("Pearson correlation between Age and Blood Pressure:", correlation))
+
+ggplot(FULLPTS, aes(x = trestbps, y = a)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Relationship Between Age and Pressure",
+       x = "Pressure", y = "Age") +
+  theme_minimal()
+
+# Explore correlations and visualize relationships between Stage and Pressure
+correlation <- cor(FULLPTS$c, FULLPTS$trestbps, method = "pearson")
+print(paste("Pearson correlation between Stage and Pressure:", correlation))
+
+ggplot(FULLPTS, aes(x = trestbps, y = c)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Relationship Between Stage and Pressure",
+       x = "Pressure", y = "Stage") +
+  theme_minimal()
 
 
 #C - Cholestrol
@@ -246,7 +357,7 @@ ggplot(pts_data, aes(x = PseudoTime, y = Chol)) +
        x = "Pseudo-Time", y = "cholestrol") +
   theme_minimal()
 
-# Explore correlations and visualize relationships between age and disease stage
+# Explore correlations and visualize relationships between age and Cholesterol
 correlation <- cor(FULLPTS$a, FULLPTS$chol, method = "pearson")
 print(paste("Pearson correlation between Age and Cholestrol:", correlation))
 
@@ -257,74 +368,16 @@ ggplot(FULLPTS, aes(x = chol, y = a)) +
        x = "Cholestrol", y = "Age") +
   theme_minimal()
 
+# Explore correlations and visualize relationships between Stage and Cholesterol
+correlation <- cor(FULLPTS$c, FULLPTS$chol, method = "pearson")
+print(paste("Pearson correlation between Stage and Cholestrol:", correlation))
 
-
-#D - Thalach- maximum heart rate achieved
-# Initialize an empty data frame to store the extracted data for all 5 paths
-pts_data <- data.frame()
-
-# Loop through the first 5 paths (pts[[1]] to pts[[5]]) to extract age and pseudo-time
-for (i in 1:5) {
-  # Get the indices of samples for the i-th path
-  path_indices <- pts[[i]]
-  
-  # Extract the age values for this path
-  thalach_values <- data$thalach[path_indices]
-  
-  # Create a temporary data frame for this path
-  temp_df <- data.frame(
-    PseudoTime = 1:length(thalach_values),  # Pseudo-time (time step)
-    Thalach = thalach_values,  # Age values along the path
-    Path = factor(rep(i, length(thalach_values)))  # Path index for faceting
-  )
-  
-  # Append the data to pts_data
-  pts_data <- rbind(pts_data, temp_df)
-}
-
-# Plot using ggplot2 with facets
-ggplot(pts_data, aes(x = PseudoTime, y = Thalach)) +
-  geom_line(color = "blue") +  # Raw line plot for age progression
-  facet_wrap(~Path, scales = "free_y", ncol = 1) +  # Faceting by Path
-  labs(title = "Maximum Heart Rate achieved Progression for First 5 Pseudo-Time Paths",
-       x = "Pseudo-Time", y = "cholestrol") +
+ggplot(FULLPTS, aes(x = chol, y = c)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Relationship Between Stage and Cholestrol",
+       x = "Cholestrol", y = "Stage") +
   theme_minimal()
-
-
-
-
-
-#E - Old Peak- maximum heart rate achieved
-# Initialize an empty data frame to store the extracted data for all 5 paths
-pts_data <- data.frame()
-
-# Loop through the first 5 paths (pts[[1]] to pts[[5]]) to extract age and pseudo-time
-for (i in 1:5) {
-  # Get the indices of samples for the i-th path
-  path_indices <- pts[[i]]
-  
-  # Extract the age values for this path
-  oldpeak_values <- data$oldpeak[path_indices]
-  
-  # Create a temporary data frame for this path
-  temp_df <- data.frame(
-    PseudoTime = 1:length(oldpeak_values),  # Pseudo-time (time step)
-    OldPeak = oldpeak_values,  # Age values along the path
-    Path = factor(rep(i, length(oldpeak_values)))  # Path index for faceting
-  )
-  
-  # Append the data to pts_data
-  pts_data <- rbind(pts_data, temp_df)
-}
-
-# Plot using ggplot2 with facets
-ggplot(pts_data, aes(x = PseudoTime, y = OldPeak)) +
-  geom_line(color = "blue") +  # Raw line plot for age progression
-  facet_wrap(~Path, scales = "free_y", ncol = 1) +  # Faceting by Path
-  labs(title = "Oldpeak (Magnitude of Ischemia - (reduced bloodflow to heart muscles)) for First 5 Pseudo-Time Paths",
-       x = "Pseudo-Time", y = "oldpeak") +
-  theme_minimal()
-
 
 
 

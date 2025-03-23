@@ -21,7 +21,10 @@ data <- na.omit(data)
 
 # Select relevant features (Ensure that they are numeric)
 features <- data %>%
-  select(Age, cp, trestbps, chol, fbs, restecg, thalach, exang, oldpeak, slope, ca, thal)  # Exclude `num`
+  select(Age, cp, trestbps, chol, fbs,
+         restecg, thalach, exang, oldpeak,
+         slope, ca, thal)  # Exclude `num`
+
 
 # Check if all columns in 'features' are numeric
 features[] <- lapply(features, function(x) as.numeric(as.character(x)))
@@ -119,6 +122,28 @@ rate_model <- lm(Average_Age ~ t, data = avg_age_pts)
 # Extract the slope (rate of increase)
 rate_of_increase <- coef(rate_model)[2]
 cat("Rate of Increase in Age per Pseudo-Time Unit:", rate_of_increase, "\n")
+
+# Compute the average cholesterol at each pseudo-time point
+head(FULLPTS)
+avg_chol_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Chol = mean(chol, na.rm = TRUE))  
+
+# Plot trend line for average cholesterol over pseudo-time
+ggplot(avg_chol_pts, aes(x = t, y = Average_Chol)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Cholesterol Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Cholesterol") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Chol ~ t, data = avg_chol_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Cholesterol per Pseudo-Time Unit:", rate_of_increase, "\n")
 
 ############ A: Visualization: Density Plot for Age Distribution by Disease Stage
 ggplot(FULLPTS, aes(x = a, fill = factor(c))) +
@@ -224,9 +249,13 @@ ggplot(pts_data, aes(x = PseudoTime, y = Chol)) +
        x = "Pseudo-Time", y = "Age") +
   theme_minimal()
 
-# Explore correlations and visualize relationships between age and disease stage
+# Explore correlations and visualize relationships between age and cholesterol
 correlation <- cor(FULLPTS$a, FULLPTS$chol, method = "pearson")
 print(paste("Pearson correlation between Age and Cholestrol:", correlation))
+
+# Explore correlations and visualize relationships between stage and cholesterol
+correlation <- cor(FULLPTS$c, FULLPTS$chol, method = "pearson")
+print(paste("Pearson correlation between Stage and Cholestrol:", correlation))
 
 ggplot(FULLPTS, aes(x = chol, y = a)) +
   geom_point(alpha = 0.5, color = "blue") +
@@ -260,9 +289,13 @@ ggplot(pts_data, aes(x = PseudoTime, y = TrestBPS)) +
        x = "Pseudo-Time", y = "Resting Blood Pressure") +
   theme_minimal()
 
-# Explore correlations and visualize relationships between age and disease stage
+# Explore correlations and visualize relationships between age and pressure
 correlation <- cor(FULLPTS$a, FULLPTS$trestbps, method = "pearson")
 print(paste("Pearson correlation between Age and Resting Blood Pressure:", correlation))
+
+# Explore correlations and visualize relationships between stage and pressure
+correlation <- cor(FULLPTS$c, FULLPTS$trestbps, method = "pearson")
+print(paste("Pearson correlation between Stage and Resting Blood Pressure:", correlation))
 
 ggplot(FULLPTS, aes(x = trestbps, y = Age)) +
   geom_point(alpha = 0.5, color = "blue") +

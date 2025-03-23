@@ -17,12 +17,12 @@ head(dat)
 
 # Extract relevant columns
 mydata = dat[, 1:2]  # Assume Age and another feature
+head(mydata)
 fullclass = dat[, 3]  # Original disease stages
 
 # Build distance matrix
 dis <- dist(mydata, method = "euclidean")
 dis = as.matrix(dis)
-
 sampsize = nrow(mydata)
 
 #######################################################

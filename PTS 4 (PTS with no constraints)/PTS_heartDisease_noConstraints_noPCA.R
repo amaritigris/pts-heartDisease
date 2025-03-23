@@ -30,6 +30,7 @@ print(class)
 # Extract relevant features for progression (using 'age' and other relevant features)
 mydata <- dat[, c("age", "trestbps", "chol", "thalach", "oldpeak")]  # Example features
 print(mydata)
+nrow(mydata)
 
 # No constraints for disease stage progression (no need for 'banfrom' or 'banto')
 banfrom <- NULL
@@ -123,6 +124,30 @@ rate_model <- lm(Average_Age ~ t, data = avg_age_pts)
 # Extract the slope (rate of increase)
 rate_of_increase <- coef(rate_model)[2]
 cat("Rate of Increase in Age per Pseudo-Time Unit:", rate_of_increase, "\n")
+
+# Compute the average CHOLESTEROL at each pseudo-time point
+head(FULLPTS)
+avg_chol_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Chol = mean(chol, na.rm = TRUE))  
+
+# Plot trend line for average cholesterol over pseudo-time
+ggplot(avg_chol_pts, aes(x = t, y = Average_Chol)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Cholesterol Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Cholesterol") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Chol ~ t, data = avg_chol_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Cholesterol per Pseudo-Time Unit:", rate_of_increase, "\n")
+
+
 
 
 
