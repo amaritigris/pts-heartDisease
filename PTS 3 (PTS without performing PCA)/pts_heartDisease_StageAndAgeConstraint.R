@@ -98,6 +98,53 @@ for (i in 1:nreps) {
   
   FULLPTS <- rbind(FULLPTS, IDPTS)
 }
+# Initialize an empty dataframe to store extracted PTS data
+#FULLPTS_corrected <- data.frame()
+
+# Loop through the first 100 PTS and extract corresponding rows from `data`
+#for (i in 1:100) {
+#  if (i > length(pts)) break  # Ensure we don't exceed available PTS
+  
+#  t <- 1:length(pts[[i]])  # Time index
+#  c <- class[pts[[i]]]  # Stage
+#  a <- age[pts[[i]]]  # Age
+  
+  # Extract corresponding data rows
+#  pts_data <- data[pts[[i]], c("chol", "trestbps")]
+  
+  # Combine into a structured dataframe
+ # IDPTS <- cbind(t, c, a, pts_data)
+  
+  # Append to the full dataset
+ # FULLPTS_corrected <- rbind(FULLPTS_corrected, IDPTS)
+#}
+
+# Save to CSV file
+#write.csv(FULLPTS_corrected, "D:\\CS Year 3\\FYP\\pseudo_time_series_AgeAndStageConstraints.csv", row.names = FALSE)
+
+# Initialize an empty dataframe to store extracted PTS data
+FULLPTS_corrected <- data.frame()
+
+# Loop through the first 100 PTS and extract corresponding rows from `data`
+for (i in 1:100) {
+  if (i > length(pts)) break  # Ensure we don't exceed available PTS
+  
+  t <- 1:length(pts[[i]])  # Time index
+  c <- class[pts[[i]]]  # Stage
+  a <- age[pts[[i]]]  # Age
+  
+  # Extract corresponding data rows
+  pts_data <- data[pts[[i]], c("chol", "trestbps")]
+  
+  # Combine into a structured dataframe
+  IDPTS <- cbind(t, c, a, pts_data)
+  
+  # Append to the full dataset
+  FULLPTS_corrected <- rbind(FULLPTS_corrected, IDPTS)
+}
+
+# Save to CSV file
+#write.csv(FULLPTS_corrected, "D:\\CS Year 3\\FYP\\pseudo_time_series_ageConstraints.csv", row.names = FALSE)
 
 # Compute the average age at each pseudo-time point
 head(FULLPTS)
@@ -121,29 +168,7 @@ rate_model <- lm(Average_Age ~ t, data = avg_age_pts)
 rate_of_increase <- coef(rate_model)[2]
 cat("Rate of Increase in Age per Pseudo-Time Unit:", rate_of_increase, "\n")
 
-# Compute the average STAGE at each pseudo-time point
-head(FULLPTS)
-avg_stage_pts <- FULLPTS %>%
-  group_by(t) %>%
-  summarize(Average_Stage = mean(c, na.rm = TRUE))  
-
-# Plot trend line for average STAGE over pseudo-time
-ggplot(avg_stage_pts, aes(x = t, y = Average_Stage)) +
-  geom_smooth(color = "blue", size = 1.2) +  # Trend line
-  #geom_point(color = "red", size = 2) +  # Points for better visualization
-  labs(title = "Average Stage Progression Over Pseudo-Time",
-       x = "Pseudo-Time",
-       y = "Average Stage") +
-  theme_minimal()
-
-# Fit a linear model to get the rate of increase
-rate_model <- lm(Average_Stage ~ t, data = avg_stage_pts)
-
-# Extract the slope (rate of increase)
-rate_of_increase <- coef(rate_model)[2]
-cat("Rate of Increase in Stage per Pseudo-Time Unit:", rate_of_increase, "\n")
-
-# Compute the average CHOLESTEROL at each pseudo-time point
+# Compute the average cholesterol at each pseudo-time point
 head(FULLPTS)
 avg_chol_pts <- FULLPTS %>%
   group_by(t) %>%
@@ -165,10 +190,49 @@ rate_model <- lm(Average_Chol ~ t, data = avg_chol_pts)
 rate_of_increase <- coef(rate_model)[2]
 cat("Rate of Increase in Cholesterol per Pseudo-Time Unit:", rate_of_increase, "\n")
 
+# Compute the average pressure at each pseudo-time point
+head(FULLPTS)
+avg_pres_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Pressure = mean(trestbps, na.rm = TRUE))  
 
+# Plot trend line for average cholesterol over pseudo-time
+ggplot(avg_pres_pts, aes(x = t, y = Average_Pressure)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Pressure Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Pressure") +
+  theme_minimal()
 
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Pressure ~ t, data = avg_pres_pts)
 
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Pressure per Pseudo-Time Unit:", rate_of_increase, "\n")
 
+# Compute the average Stage at each pseudo-time point
+head(FULLPTS)
+avg_stage_pts <- FULLPTS %>%
+  group_by(t) %>%
+  summarize(Average_Stage = mean(num, na.rm = TRUE))  
+
+# Plot trend line for average cholesterol over pseudo-time
+ggplot(avg_stage_pts, aes(x = t, y = Average_Stage)) +
+  geom_smooth(color = "blue", size = 1.2) +  # Trend line
+  #geom_point(color = "red", size = 2) +  # Points for better visualization
+  labs(title = "Average Stage Progression Over Pseudo-Time",
+       x = "Pseudo-Time",
+       y = "Average Stage") +
+  theme_minimal()
+
+# Fit a linear model to get the rate of increase
+rate_model <- lm(Average_Stage ~ t, data = avg_stage_pts)
+
+# Extract the slope (rate of increase)
+rate_of_increase <- coef(rate_model)[2]
+cat("Rate of Increase in Stages per Pseudo-Time Unit:", rate_of_increase, "\n")
 
 
 # Plotting

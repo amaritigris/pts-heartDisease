@@ -27,7 +27,7 @@ pca_sampled <- pca_data %>% filter(STUDYNO %in% selected_patients)
 ggplot(pca_sampled, aes(x = PC1, y = PC2, color = Stage, group = STUDYNO)) +
   geom_point(size = 3, alpha = 0.8) +  # Scatter points
   geom_line(colour = "black", alpha = 0.5) +  # Connect points within the same patient
-  scale_color_manual(values = c("0" = "blue", "1" = "green", 
+   scale_color_manual(values = c("0" = "blue", "1" = "green", 
                                 "2" = "yellow", "3" = "orange", 
                                 "4" = "red"),
                      name = "Disease Stage",
