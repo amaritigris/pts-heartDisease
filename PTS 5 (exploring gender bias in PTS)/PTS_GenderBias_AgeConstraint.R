@@ -21,6 +21,8 @@ data <- na.omit(data)
 # Separate the dataset by gender
 male_data <- data %>% filter(sex == 1)  # Male patients
 female_data <- data %>% filter(sex == 0)  # Female patients
+nrow(male_data)
+nrow(female_data)
 
 create_pts <- function(dataset, nreps = 100, sampsize = 50, endclass = 4) {
   features <- dataset %>%
@@ -270,6 +272,13 @@ correlation_female <- cor(female_pts$a, female_pts$chol, method = "pearson")
 print(paste("Pearson correlation between Age and Cholestrol (Male):", correlation_male))
 print(paste("Pearson correlation between Age and Cholestrol (Female):", correlation_female))
 
+#correlation between stage and cholestrol 
+correlation_male <- cor(male_pts$c, male_pts$chol, method = "pearson")
+correlation_female <- cor(female_pts$c, female_pts$chol, method = "pearson")
+print(paste("Pearson correlation between Stage and Cholestrol (Male):", correlation_male))
+print(paste("Pearson correlation between Stage and Cholestrol (Female):", correlation_female))
+
+
 ggplot() +
   geom_point(data = male_pts, aes(x = chol, y = a), alpha = 0.5, color = "blue") +
   geom_point(data = female_pts, aes(x = chol, y = a), alpha = 0.5, color = "red") +
@@ -331,6 +340,11 @@ correlation_male <- cor(male_pts$a, male_pts$trestbps, method = "pearson")
 correlation_female <- cor(female_pts$a, female_pts$trestbps, method = "pearson")
 print(paste("Pearson correlation between Age and Resting Blood Pressure (Male):", correlation_male))
 print(paste("Pearson correlation between Age and Resting Blood Pressure (Female):", correlation_female))
+#correlation between stage and resting blood pressure 
+correlation_male <- cor(male_pts$c, male_pts$trestbps, method = "pearson")
+correlation_female <- cor(female_pts$c, female_pts$trestbps, method = "pearson")
+print(paste("Pearson correlation between Stage and Resting Blood Pressure (Male):", correlation_male))
+print(paste("Pearson correlation between Stage and Resting Blood Pressure (Female):", correlation_female))
 
 ggplot() +
   geom_point(data = male_pts, aes(x = trestbps, y = a), alpha = 0.5, color = "blue") +

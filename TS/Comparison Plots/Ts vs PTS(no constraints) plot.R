@@ -44,7 +44,7 @@ pcadat = prcomp(mydata, center = TRUE, scale. = TRUE)
 pcadat$x[, 1] <- -pcadat$x[, 1]  # Flip PCA Component 1
 
 
-nreps = 100  # Number of PTS generated
+nreps = 50  # Number of PTS generated
 pts = list()  # Store PTS trajectories
 
 for (i in 1:nreps) {
@@ -93,7 +93,7 @@ ggplot() +
   
   # Overlay pseudo-time series paths (black lines for structure)
   geom_path(data = pseudo_df, aes(x = PC1, y = PC2, group = Stage), 
-            color = "black", size = 0.7, alpha = 0.6) +
+            color = "black", size = 0.1, alpha = 0.3) +
   
   # Add pseudo-time series data points (colored triangles)
   geom_point(data = pseudo_df, aes(x = PC1, y = PC2, color = Stage), 
@@ -105,6 +105,6 @@ ggplot() +
                                 "3" = "orange", "4" = "red")) +
   
   # Labels & Theme
-  labs(title = "Comparison of Real vs. Pseudo-Time Series",
+  labs(title = "Comparison of Real vs. Pseudo-Time Series (No constraints)",
        x = "PCA Component 1", y = "PCA Component 2") +
   theme_minimal()

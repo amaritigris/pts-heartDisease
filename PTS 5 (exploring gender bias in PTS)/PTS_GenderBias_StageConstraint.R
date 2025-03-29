@@ -269,8 +269,14 @@ ggplot(pts_data, aes(x = PseudoTime, y = Stage, color = Gender)) +
   scale_color_manual(values = c("Male" = "blue", "Female" = "red")) +
   theme_minimal()
 
-
 #correlation between age and cholestrol 
+correlation_male <- cor(male_pts$a, male_pts$chol, method = "pearson")
+correlation_female <- cor(female_pts$a, female_pts$chol, method = "pearson")
+print(paste("Pearson correlation between Age and Cholestrol (Male):", correlation_male))
+print(paste("Pearson correlation between Age and Cholestrol (Female):", correlation_female))
+
+
+#correlation between stage and cholestrol 
 correlation_male <- cor(male_pts$c, male_pts$chol, method = "pearson")
 correlation_female <- cor(female_pts$c, female_pts$chol, method = "pearson")
 print(paste("Pearson correlation between Disease Stage and Cholestrol (Male):", correlation_male))
@@ -332,11 +338,19 @@ ggplot(pts_data, aes(x = PseudoTime, y = Stage, color = Gender)) +
   theme_minimal()
 
 
-#correlation between age and resting blood pressure 
+#correlation between stage and resting blood pressure 
 correlation_male <- cor(male_pts$c, male_pts$trestbps, method = "pearson")
 correlation_female <- cor(female_pts$c, female_pts$trestbps, method = "pearson")
 print(paste("Pearson correlation between Disease Stage and Resting Blood Pressure (Male):", correlation_male))
 print(paste("Pearson correlation between Disease Stage and Resting Blood Pressure (Female):", correlation_female))
+
+
+#correlation between age and resting blood pressure 
+correlation_male <- cor(male_pts$a, male_pts$trestbps, method = "pearson")
+correlation_female <- cor(female_pts$a, female_pts$trestbps, method = "pearson")
+print(paste("Pearson correlation between Age and Resting Blood Pressure (Male):", correlation_male))
+print(paste("Pearson correlation between Age and Resting Blood Pressure (Female):", correlation_female))
+
 
 ggplot() +
   geom_point(data = male_pts, aes(x = trestbps, y = c), alpha = 0.5, color = "blue") +

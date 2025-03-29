@@ -135,10 +135,7 @@ head(full_data$STUDYNO, 50)
 
 
 #convert into time series format 
-
-
 #-----------first i want to create a new dataframe for testing purposes
-
 # Combine cholesterol values from different phases into one column
 
 selected_data <- full_data %>%

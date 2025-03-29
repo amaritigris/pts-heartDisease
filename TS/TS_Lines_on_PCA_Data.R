@@ -27,7 +27,7 @@ pca_sampled <- pca_data %>% filter(STUDYNO %in% selected_patients)
 ggplot(pca_sampled, aes(x = PC1, y = PC2, color = Stage, group = STUDYNO)) +
   geom_point(size = 3, alpha = 0.8) +  # Scatter points
   geom_line(colour = "black", alpha = 0.5) +  # Connect points within the same patient
-  scale_color_manual(values = c("0" = "blue", "1" = "green", 
+   scale_color_manual(values = c("0" = "blue", "1" = "green", 
                                 "2" = "yellow", "3" = "orange", 
                                 "4" = "red"),
                      name = "Disease Stage",
@@ -64,4 +64,17 @@ ggplot(pca_sampled, aes(x = Age, y = Stage, color = Age_Group)) +
        color = "Age Group") +
   theme_minimal() +
   theme(legend.position = "right")
+
+#saving time series for comparison purposes
+# Select relevant columns and order by STUDYNO and time (if a time column exists)
+ts_data <- pca_sampled %>% 
+  select(STUDYNO, Age, Stage, PC1, PC2) %>%
+  arrange(STUDYNO, Age)  # Ensuring proper ordering of time series
+
+# Print first few rows to verify structure
+head(ts_data)
+
+write.csv(ts_data, "D:\\CS Year 3\\FYP\\PTS code\\TS\\extracted_time_series.csv", row.names = FALSE)
+
+
 

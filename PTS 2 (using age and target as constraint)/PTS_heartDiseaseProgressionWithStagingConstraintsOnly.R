@@ -21,6 +21,7 @@ fullclass = dat[,3]#vector of classes where 0 is control (selects third column w
 print(fullclass)
 class=1+(fullclass>0)#converts multiclasses into 2: 1 = control, 2 = others
 print(class)
+
 #constraints for Simulated Data
 #constrain banfrom[k] -> banto[k] moves
 banfrom = c(3,4);#NULL;#
@@ -154,6 +155,37 @@ for (i in 1:nreps) {
 }
 
 
+#plotting only one patient
+# Select a specific trajectory, e.g., the first trajectory from the pts list
+selected_trajectory <- pts[[10]]  # Change the index to select any other trajectory
+
+# Extract the PCA scores for the patients in the selected trajectory
+selected_scores <- pcadat$scores[selected_trajectory, ]
+
+# Scatterplot of PCA scores, only for patients in the selected trajectory
+plot(
+  selected_scores[, 1], selected_scores[, 2], 
+  col = fullclass[selected_trajectory] + 1, pch =19,cex = 3,
+  xlab = "Principal Component 1", 
+  ylab = "Principal Component 2", 
+  main = "Selected Trajectory in PCA Space"
+)
+
+# Add a legend to signify classes in the selected trajectory
+legend(
+  "bottomright", 
+  legend = unique(fullclass[selected_trajectory]), 
+  col = unique(fullclass[selected_trajectory] + 1), 
+  pch = 19, 
+  title = "Disease Stage"
+)
+
+# Overlay the trajectory line (connecting the points in order)
+lines(
+  selected_scores[, 1], selected_scores[, 2], 
+  col = "blue", lwd = 1  # Blue line with width 2
+)
+
 ###ggplots
 FULLPTS=data.frame()
 for (i in 1:nreps)
@@ -191,4 +223,21 @@ ggplot(FULLPTS,
            y=FULLPTS$Comp.2, 
            fill=factor(FULLPTS$c)))+
   geom_smooth()
+
+
+#saving pts as csv for evaluation purposes
+# Convert PTS list to a data frame for saving
+pts_df <- do.call(rbind, lapply(1:length(pts), function(i) {
+  data.frame(
+    Rep = i,  # Identifier for the repetition
+    PseudoTime = 1:length(pts[[i]]),  # Time point in the trajectory
+    Index = pts[[i]],  # Indices from sampled data
+    PC1 = pcadat$scores[pts[[i]], 1],  # PCA Component 1
+    PC2 = pcadat$scores[pts[[i]], 2],  # PCA Component 2
+    Age = age[pts[[i]]],  # Age of patients
+    Class = class[pts[[i]]]  # Disease stage
+  )
+}))
+
+write.csv(pts_df, "D:\\CS Year 3\\FYP\\PTS code\\pca_generated_pts_stageConstraints.csv", row.names = FALSE)
 
