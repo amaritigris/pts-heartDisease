@@ -450,5 +450,17 @@ ggplot(FULLPTS, aes(x = oldpeak, y = Age)) +
        x = "OldPeak", y = "Age") +
   theme_minimal()
 
+# Explore correlations and visualize relationships between cholesterol and disease stage
+correlation <- cor(FULLPTS$chol, FULLPTS$c, method = "pearson")
+print(paste("Pearson correlation between Stage and Cholesterol Achieved:", correlation))
+
+ggplot(FULLPTS, aes(x = oldpeak, y = Age)) +
+  geom_point(alpha = 0.5, color = "blue") +
+  geom_smooth(method = "lm", color = "red", se = TRUE) +
+  labs(title = "Relationship Between Age and Oldpeak",
+       x = "OldPeak", y = "Age") +
+  theme_minimal()
+
+
 
 
