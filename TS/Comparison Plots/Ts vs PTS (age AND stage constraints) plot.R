@@ -105,7 +105,7 @@ pca_transformed <- data.frame(
 )
 
 # Convert PTS trajectories into a data frame for ggplot
-pts_df <- do.call(rbind, lapply(1:, function(i) {  # Select only 20 PTS for clarity
+pts_df <- do.call(rbind, lapply(1: function(i) {  # Select only 20 PTS for clarity
   data.frame(
     PC1 = features[pts[[i]], 1],
     PC2 = features[pts[[i]], 2],
