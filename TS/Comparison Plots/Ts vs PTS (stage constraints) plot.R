@@ -117,6 +117,7 @@ pts_df <- do.call(rbind, lapply(1:30, function(i) {  # Select only 20 PTS for cl
 
 pts_df$PC1 <- -pts_df$PC1
 pts_df$PC2 <- -pts_df$PC2
+
 # Plot TS and PTS
 ggplot() +
   # Plot real time series (colored by disease stage)

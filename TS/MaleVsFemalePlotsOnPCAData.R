@@ -1,6 +1,11 @@
 # Install the dplyr package (if not already installed)
 if (!require("dplyr")) install.packages("dplyr")
 if (!require("ggplot2")) install.packages("ggplot2")
+if (!require("gridExtra")) install.packages("gridExtra")
+
+library(gridExtra)
+
+
 
 
 # Load the dplyr package
@@ -91,6 +96,8 @@ plot_female_density <- ggplot(female_data, aes(x = Age, fill = Stage)) +
 # Print the plots
 print(plot_male_density)
 print(plot_female_density)
+grid.arrange(plot_male_density, plot_female_density, ncol = 2)
+
 
 
 
